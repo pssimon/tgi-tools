@@ -1,2 +1,56 @@
 #!/usr/bin/perl
+use warnings;
+use strict;
+use Data::Dumper;
 
+my @final = grep {/\d+/} split /\s+/, <>;
+die "Need at least one final state" unless @final;
+my $dea = [map {[grep {/\d+/} split /\s+/]} <>];
+my $states = @$dea;
+my $max_alphabet = scalar @{${$dea}[0]};
+for(@$dea) {
+	die "Inconsistent number of exiting edges" unless (scalar @$_ == $max_alphabet);
+	for(@$_) {
+		die "Transition to nonexistant state" unless ($_ < $states);
+	}
+}
+
+# L_{q_n, i, q_m} ~ @L[i][n][m];
+my @L; 
+#initialize
+for my $a (0..$states - 1) {
+	for my $b (0..$states - 1) {
+		$L[0][$a][$b] = [];
+		if($a == $b) {
+			push @{$L[0][$a][$b]}, "\\varepsilon";
+		}
+		for my $letter (0..$max_alphabet-1) {
+			if ($$dea[$a][$letter] == $b) {
+				push @{$L[0][$a][$b]}, $letter;
+			}
+		}
+		$L[0][$a][$b] = join ' \\cup ', @{$L[0][$a][$b]};
+	}
+}
+for my $i (1..$states) {
+	for my $a (0..$states - 1) {
+		for my $b (0..$states - 1) {
+			$L[$i][$a][$b] = 
+				'('.$L[$i-1][$a][$b].')';
+			if($L[$i-1][$a][$i] && $L[$i-1][$i][$i] && $L[$i-1][$i][$b]) {
+				$L[$i][$a][$b] .= 
+					' \cup ('.
+					$L[$i-1][$a][$i].
+					'('.$L[$i-1][$i][$i].')^*'.
+					$L[$i-1][$i][$b].
+					')';
+			
+			}
+		}
+	}
+}
+
+
+print join "\\cup", map {$L[$states][0][$_]} @final;
+print "\n";
+#print Dumper @L;
