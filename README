@@ -1,4 +1,6 @@
-Here you'll find a few tools that automate some of the things done in the TGI lecture at the KTI.
+Here you'll find a few tools that automate some of the things done in the TGI lecture at the KIT.
 They're all written (or will be written) in perl ^^
 
-more readmes will follow
+The output produced by these tools can be latex, if this is the case, a simple way to check it out is, for example http://mathbin.net/
+
+more readmes will follow.
