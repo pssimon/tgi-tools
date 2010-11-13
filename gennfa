@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+# A small tool to generate a random DFA
+use List::Util qw(shuffle);
+use strict;
+use warnings;
+
+srand (time ^ $$ ^ unpack "%L*", `ps axww | gzip -f`);
+
+
+die "Usage: ./gennfa [number of states] [length of alphabet]\n" unless @ARGV;
+
+my $states = shift;
+my $sigman = shift;
+die "Statesnumber must be numeric.\n" unless $states =~ /\d+/;
+die "Sigmalength must be numeric.\n" unless $sigman =~ /\d+/;
+
+#print final states
+print((join " ", (shuffle 1...$states)[0..rand $states]),"\n");
+
+for(1..$states) {
+	print join " ", map {"(".(join ",", (shuffle 1...$states)[0..rand $states]).")"} (1..$sigman);
+	print "\n";
+}
