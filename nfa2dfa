@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use Data::Dumper;
+
+my @final = grep {/\d+/} split /\s+/, <>;
+die "Need at least one final state" unless @final;
+my $nfa = [[], map {[ map {[grep {/\d+/} split /\b/]} split /\s+/]} <>];
+my $states = @$nfa;
+my $max_alphabet = scalar @{${$nfa}[1]};
+for(@$nfa[1...$#{$nfa}]) {
+	die "Inconsistent number of exiting edges" unless (scalar @$_ == $max_alphabet);
+	for(@$_) {
+		for(@$_) {
+			die "Transition to nonexistant state" unless ($_ <= $states);
+		}
+	}
+}
+for(@final){die "Nonexistant state as a final state." unless $_ <= $states};
+
+my @todo = ([1]);
+my %name;
+my $newname = 0;
+my $out = "";
+my @f;
+while(my $todo = shift @todo) {
+	for my $input (0..$max_alphabet - 1) {
+		my %u;
+		my @to = sort grep{!$u{$_}++} map {@$_} map {${$_}[$input]} @{$nfa}[@$todo];
+		unless ($name{join("-",@to,".")}) {
+			push @todo, [@to];
+			$name{join("-",@to,".")} = ++$newname;
+			my $final = 0;
+			for my $t (@to) {
+				$final && last;
+				for my $f (@final) {
+					$final && last;
+					if($t == $f) {
+						$final = 1;
+					}
+				}
+			}
+			if ($final) {
+				push @f, $newname;
+			}
+		}	
+		$out .= $name{join("-",@to,".")}." ";
+	}
+	$out .= "\n";
+}
+print join(" ",@f),"\n",$out;
